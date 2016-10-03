@@ -76,6 +76,7 @@ Here is the change for Appendix A.2.
 
 * Install database and provisioning services on controllers.
 ```
+fab -R database -- "yum install contrail-fabric-utils"
 fab install_database
 fab setup_database
 
@@ -95,6 +96,7 @@ fab verify_control
 
 * Reverse the change in testbed.py, put analytics back to role 'database'.
 ```
+fab install_database
 fab setup_database
 
 # Disable Zookeeper.
@@ -104,12 +106,14 @@ fab -R database -- "sudo systemctl disable zookeeper"
 # Update Kafka to use the Zookeeper on controllers and restart it.
 fab -R database -- "sudo sed -i 's/zookeeper.connect=.*/zookeeper.connect=10.1.1.1:2181,10.1.1.2:2181,10.1.1.3:2181/g'  /usr/share/kafka/config/server.properties"
 fab -R database -- "sudo service supervisor-database restart"
+fab install_collector
 fab setup_collector
 fab -R collector -- "openstack-config --set /etc/contrail/contrail-alarm-gen.conf DEFAULTS zk_list 10.1.1.1:2181 10.1.1.2:2181 10.1.1.3:2181"
 fab -R collector -- "openstack-config --set /etc/contrail/contrail-collector.conf DEFAULT zookeeper_server_list 10.1.1.1:2181,10.1.1.2:2181,10.1.1.3:2181"
 fab -R collector -- "openstack-config --set /etc/contrail/contrail-snmp-collector.conf DEFAULTS zookeeper 10.1.1.1:2181,10.1.1.2:2181,10.1.1.3:2181"
 fab -R collector -- "openstack-config --set /etc/contrail/contrail-topology.conf DEFAULTS zookeeper 10.1.1.1:2181,10.1.1.2:2181,10.1.1.3:2181"
 fab restart_collector
+fab install_webui
 fab setup_webui
 fab prov_config
 fab prov_database
